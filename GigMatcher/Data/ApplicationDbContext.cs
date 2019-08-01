@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace GigMatcher.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -17,6 +17,7 @@ namespace GigMatcher.Data
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             // sets up one-to-many relationships
             modelBuilder.Entity<Musician>()
                 .HasMany(m => m.Gigs)

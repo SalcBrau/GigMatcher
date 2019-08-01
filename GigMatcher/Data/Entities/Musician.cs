@@ -14,6 +14,9 @@ namespace GigMatcher.Data.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
+        [ForeignKey("User")]
+        public String UserId { get; set; }
+
         [Required]
         public string FirstName { get; set; }
 
@@ -47,10 +50,9 @@ namespace GigMatcher.Data.Entities
         [Required]
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
+        public virtual ApplicationUser User { get; set; }
         public virtual ICollection<Gig> Gigs { get; set; }
-
         public virtual ICollection<Position> Positions { get; set; }
-
         public virtual ICollection<Application> Applications { get; set; }
         public virtual ICollection<MusicianInstrument> MusicianInstruments { get; set; }
     }

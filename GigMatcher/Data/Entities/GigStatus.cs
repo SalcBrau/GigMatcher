@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GigMatcher.Data.Entities
 {
-    public class Opening
+    public class GigStatus
     {
         [Key]
         [Required]
@@ -15,9 +15,11 @@ namespace GigMatcher.Data.Entities
         public Guid Id { get; set; }
 
         [Required]
-        [ForeignKey("Gig")]
-        public Guid GigId { get; set; }
-        public virtual Gig Gig { get; set; }
-        public List<Application> Applications { get; set; }
+        public String Name { get; set; }
+
+        [Required]
+        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+
+        public virtual ICollection<Gig> Gigs { get; set; }
     }
 }

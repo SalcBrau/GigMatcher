@@ -22,8 +22,13 @@ namespace GigMatcher.Data.Entities
         [ForeignKey("Musician")]
         public Guid MusicianId { get; set; }
 
-        public virtual Opening Opening { get; set; }
-        public virtual ApplicationUser User { get; set; }
+        [Required]
+        [ForeignKey("ApplicationStatus")]
+        public Guid ApplicationStatusId { get; set; }
+
+        public virtual Musician Musician { get; set; }
+        public virtual Position Position { get; set; }
+        public virtual ApplicationStatus ApplicationStatus { get; set; }
 
     }
 }

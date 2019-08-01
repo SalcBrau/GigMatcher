@@ -14,9 +14,37 @@ namespace GigMatcher.Data.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
+        [ForeignKey("Owner")]
         [Required]
-        public DateTime DateOfGig { get; set; }
+        public Guid OwnerId { get; set; }
 
-        public ICollection<Opening> Openings { get; set; }
+        [ForeignKey("GigStatus")]
+        [Required]
+        public Guid GigStatusId { get; set; }
+
+        [Required]
+        public int NumberOfPositions { get; set; }
+
+        [Required]
+        public decimal TotalPay { get; set; }
+
+        [Required]
+        public String Location { get; set; }
+
+        [Required]
+        public DateTime GigStart { get; set; }
+
+        [Required]
+        public DateTime GigEnd { get; set; }
+
+        [Required]
+        public String Description { get; set; }
+
+        [Required]
+        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+
+        public virtual Musician Owner { get; set; }
+        public virtual GigStatus GigStatus { get; set; }
+        public virtual ICollection<Position> Positions { get; set; }
     }
 }

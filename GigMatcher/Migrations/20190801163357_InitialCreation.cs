@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace GigMatcher.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitialCreation : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -40,37 +40,12 @@ namespace GigMatcher.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Musicians",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    UserName = table.Column<string>(nullable: true),
-                    NormalizedUserName = table.Column<string>(nullable: true),
-                    Email = table.Column<string>(nullable: true),
-                    NormalizedEmail = table.Column<string>(nullable: true),
-                    EmailConfirmed = table.Column<bool>(nullable: false),
-                    PasswordHash = table.Column<string>(nullable: true),
-                    SecurityStamp = table.Column<string>(nullable: true),
-                    ConcurrencyStamp = table.Column<string>(nullable: true),
-                    PhoneNumber = table.Column<string>(nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
-                    LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
                     Instrument = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Musicians", x => x.Id);
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -185,21 +160,21 @@ namespace GigMatcher.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     DateOfGig = table.Column<DateTime>(nullable: false),
-                    MusicianId = table.Column<Guid>(nullable: true)
+                    ApplicationUserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Gigs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Gigs_Musicians_MusicianId",
-                        column: x => x.MusicianId,
-                        principalTable: "Musicians",
+                        name: "FK_Gigs_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Opening",
+                name: "Openings",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
@@ -207,9 +182,9 @@ namespace GigMatcher.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Opening", x => x.Id);
+                    table.PrimaryKey("PK_Openings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Opening_Gigs_GigId",
+                        name: "FK_Openings_Gigs_GigId",
                         column: x => x.GigId,
                         principalTable: "Gigs",
                         principalColumn: "Id",
@@ -222,34 +197,35 @@ namespace GigMatcher.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     OpeningId = table.Column<Guid>(nullable: false),
-                    MusicianId = table.Column<Guid>(nullable: false)
+                    MusicianId = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Applications", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Applications_Musicians_MusicianId",
-                        column: x => x.MusicianId,
-                        principalTable: "Musicians",
+                        name: "FK_Applications_Openings_OpeningId",
+                        column: x => x.OpeningId,
+                        principalTable: "Openings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Applications_Opening_OpeningId",
-                        column: x => x.OpeningId,
-                        principalTable: "Opening",
+                        name: "FK_Applications_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Applications_MusicianId",
-                table: "Applications",
-                column: "MusicianId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Applications_OpeningId",
                 table: "Applications",
                 column: "OpeningId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Applications_UserId",
+                table: "Applications",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -291,13 +267,13 @@ namespace GigMatcher.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Gigs_MusicianId",
+                name: "IX_Gigs_ApplicationUserId",
                 table: "Gigs",
-                column: "MusicianId");
+                column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Opening_GigId",
-                table: "Opening",
+                name: "IX_Openings_GigId",
+                table: "Openings",
                 column: "GigId");
         }
 
@@ -322,19 +298,16 @@ namespace GigMatcher.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Opening");
+                name: "Openings");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Gigs");
 
             migrationBuilder.DropTable(
-                name: "Musicians");
+                name: "AspNetUsers");
         }
     }
 }

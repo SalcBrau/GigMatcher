@@ -28,41 +28,29 @@ namespace GigMatcher.Migrations
 
                     b.Property<Guid>("OpeningId");
 
+                    b.Property<string>("UserId");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("MusicianId");
-
                     b.HasIndex("OpeningId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Applications");
                 });
 
-            modelBuilder.Entity("GigMatcher.Data.Entities.Gig", b =>
+            modelBuilder.Entity("GigMatcher.Data.Entities.ApplicationUser", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("DateOfGig");
-
-                    b.Property<Guid?>("MusicianId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MusicianId");
-
-                    b.ToTable("Gigs");
-                });
-
-            modelBuilder.Entity("GigMatcher.Data.Entities.Musician", b =>
-                {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
                     b.Property<int>("AccessFailedCount");
 
-                    b.Property<string>("ConcurrencyStamp");
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
 
-                    b.Property<string>("Email");
+                    b.Property<string>("Email")
+                        .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
 
@@ -72,9 +60,11 @@ namespace GigMatcher.Migrations
 
                     b.Property<DateTimeOffset?>("LockoutEnd");
 
-                    b.Property<string>("NormalizedEmail");
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256);
 
-                    b.Property<string>("NormalizedUserName");
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256);
 
                     b.Property<string>("PasswordHash");
 
@@ -86,11 +76,36 @@ namespace GigMatcher.Migrations
 
                     b.Property<bool>("TwoFactorEnabled");
 
-                    b.Property<string>("UserName");
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256);
 
                     b.HasKey("Id");
 
-                    b.ToTable("Musicians");
+                    b.HasIndex("NormalizedEmail")
+                        .HasName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("GigMatcher.Data.Entities.Gig", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("ApplicationUserId");
+
+                    b.Property<DateTime>("DateOfGig");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.ToTable("Gigs");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Opening", b =>
@@ -104,7 +119,7 @@ namespace GigMatcher.Migrations
 
                     b.HasIndex("GigId");
 
-                    b.ToTable("Opening");
+                    b.ToTable("Openings");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -149,57 +164,6 @@ namespace GigMatcher.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AccessFailedCount");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256);
-
-                    b.Property<bool>("EmailConfirmed");
-
-                    b.Property<bool>("LockoutEnabled");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("PasswordHash");
-
-                    b.Property<string>("PhoneNumber");
-
-                    b.Property<bool>("PhoneNumberConfirmed");
-
-                    b.Property<string>("SecurityStamp");
-
-                    b.Property<bool>("TwoFactorEnabled");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -270,22 +234,21 @@ namespace GigMatcher.Migrations
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Application", b =>
                 {
-                    b.HasOne("GigMatcher.Data.Entities.Musician", "Musician")
-                        .WithMany("Applications")
-                        .HasForeignKey("MusicianId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("GigMatcher.Data.Entities.Opening", "Opening")
                         .WithMany("Applications")
                         .HasForeignKey("OpeningId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser", "User")
+                        .WithMany("Applications")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Gig", b =>
                 {
-                    b.HasOne("GigMatcher.Data.Entities.Musician")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany("Gigs")
-                        .HasForeignKey("MusicianId");
+                        .HasForeignKey("ApplicationUserId");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Opening", b =>
@@ -306,7 +269,7 @@ namespace GigMatcher.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -314,7 +277,7 @@ namespace GigMatcher.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -327,7 +290,7 @@ namespace GigMatcher.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
@@ -335,7 +298,7 @@ namespace GigMatcher.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

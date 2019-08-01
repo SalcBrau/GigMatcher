@@ -23,7 +23,7 @@ namespace GigMatcher.Data.Entities
         public Guid MusicianId { get; set; }
 
         public virtual Opening Opening { get; set; }
-        public virtual User User { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
     }
 }

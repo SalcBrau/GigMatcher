@@ -113,7 +113,10 @@ namespace GigMatcher
                 }
             }
 
+            /*
+
             // default admin user
+      
             IdentityUser user = await UserManager.FindByEmailAsync("admin@mail.com");
             
             if (user == null)
@@ -156,6 +159,7 @@ namespace GigMatcher
 
             await UserManager.AddToRoleAsync(user2, "Manager");
 
+            */
         }
     }
 }

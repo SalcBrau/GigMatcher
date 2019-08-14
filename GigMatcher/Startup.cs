@@ -62,6 +62,7 @@ namespace GigMatcher
                 options.User.RequireUniqueEmail = true;
             });
 
+            services.ConfigureRepositoryWrapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

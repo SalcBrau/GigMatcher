@@ -5,10 +5,11 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using GigMatcher.Data.Entities;
 using Microsoft.AspNetCore.Identity;
+using Data.Values;
 
 namespace GigMatcher.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+    public partial class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -92,5 +93,8 @@ namespace GigMatcher.Data
         public DbSet<PositionInstrument> PositionInstruments { get; set; }
 
         public DbSet<PositionStatus> PositionStatus { get; set; }
+
+
+        public DbValues DbStates { get => new DbValues(); }
     }
 }

@@ -12,10 +12,10 @@ namespace GigMatcher.Data.Entities
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [ForeignKey("User")]
-        public String UserId { get; set; }
+        public int UserId { get; set; }
 
         [Required]
         public string FirstName { get; set; }

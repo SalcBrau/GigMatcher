@@ -12,7 +12,7 @@ namespace GigMatcher.Data.Entities
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
         public String Name { get; set; }

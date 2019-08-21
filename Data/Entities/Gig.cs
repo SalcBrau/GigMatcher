@@ -12,15 +12,15 @@ namespace GigMatcher.Data.Entities
         [Key]
         [Required]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [ForeignKey("Owner")]
         [Required]
-        public Guid OwnerId { get; set; }
+        public int OwnerId { get; set; }
 
         [ForeignKey("GigStatus")]
         [Required]
-        public Guid GigStatusId { get; set; }
+        public int GigStatusId { get; set; }
 
         [Required]
         public int NumberOfPositions { get; set; }

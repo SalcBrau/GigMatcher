@@ -13,6 +13,8 @@ using Microsoft.EntityFrameworkCore;
 using GigMatcher.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Data.Values;
+using GigMatcher.Extensions;
 
 namespace GigMatcher
 {
@@ -62,12 +64,14 @@ namespace GigMatcher
                 options.User.RequireUniqueEmail = true;
             });
 
+            services.AddScoped<IDbValues, DbValues>();
             services.ConfigureRepositoryWrapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider,
+            IDbValues dbValues)
         {
             if (env.IsDevelopment())
             {
@@ -95,6 +99,13 @@ namespace GigMatcher
             });
 
             CreateRoles(serviceProvider).Wait();
+
+            using (var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope())
+            {
+                var db = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+
+                db.Seed(dbValues);
+            }
         }
 
         private async Task CreateRoles(IServiceProvider serviceProvider)
@@ -113,7 +124,7 @@ namespace GigMatcher
                     roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
                 }
             }
-
+ 
             /*
 
             // default admin user

@@ -11,11 +11,11 @@ namespace GigMatcher.Data.Entities
     {   
         [Key]
         [Required]
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         [Required]
         [ForeignKey("InstrumentType")]
-        public Guid InstrumentType { get; set; }
+        public int InstrumentType { get; set; }
 
         [Required]
         public String Name { get; set; }

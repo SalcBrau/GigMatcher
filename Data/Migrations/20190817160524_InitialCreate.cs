@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace GigMatcher.Migrations
+namespace Data.Migrations
 {
     public partial class InitialCreate : Migration
     {
@@ -12,7 +12,8 @@ namespace GigMatcher.Migrations
                 name: "ApplicationStatus",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false)
                 },
@@ -36,10 +37,36 @@ namespace GigMatcher.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(nullable: false),
+                    UserName = table.Column<string>(maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
+                    Email = table.Column<string>(maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(nullable: false),
+                    PasswordHash = table.Column<string>(nullable: true),
+                    SecurityStamp = table.Column<string>(nullable: true),
+                    ConcurrencyStamp = table.Column<string>(nullable: true),
+                    PhoneNumber = table.Column<string>(nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
+                    LockoutEnabled = table.Column<bool>(nullable: false),
+                    AccessFailedCount = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GigStatus",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false)
                 },
@@ -52,7 +79,8 @@ namespace GigMatcher.Migrations
                 name: "InstrumentTypes",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false)
                 },
@@ -65,7 +93,8 @@ namespace GigMatcher.Migrations
                 name: "PositionStatus",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: false),
                     DateCreated = table.Column<DateTime>(nullable: false)
                 },
@@ -96,43 +125,42 @@ namespace GigMatcher.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Instruments",
+                name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    InstrumentType = table.Column<Guid>(nullable: false),
-                    Name = table.Column<string>(nullable: false),
-                    DateCreated = table.Column<DateTime>(nullable: false),
-                    TypeId = table.Column<Guid>(nullable: true)
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<string>(nullable: false),
+                    ClaimType = table.Column<string>(nullable: true),
+                    ClaimValue = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Instruments", x => x.Id);
+                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Instruments_InstrumentTypes_TypeId",
-                        column: x => x.TypeId,
-                        principalTable: "InstrumentTypes",
+                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Applications",
+                name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    OpeningId = table.Column<Guid>(nullable: false),
-                    MusicianId = table.Column<Guid>(nullable: false),
-                    ApplicationStatusId = table.Column<Guid>(nullable: false),
-                    PositionId = table.Column<Guid>(nullable: true)
+                    LoginProvider = table.Column<string>(nullable: false),
+                    ProviderKey = table.Column<string>(nullable: false),
+                    ProviderDisplayName = table.Column<string>(nullable: true),
+                    UserId = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Applications", x => x.Id);
+                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
                     table.ForeignKey(
-                        name: "FK_Applications_ApplicationStatus_ApplicationStatusId",
-                        column: x => x.ApplicationStatusId,
-                        principalTable: "ApplicationStatus",
+                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -153,35 +181,12 @@ namespace GigMatcher.Migrations
                         principalTable: "AspNetRoles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<string>(nullable: false),
-                    ClaimType = table.Column<string>(nullable: true),
-                    ClaimValue = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
-                columns: table => new
-                {
-                    LoginProvider = table.Column<string>(nullable: false),
-                    ProviderKey = table.Column<string>(nullable: false),
-                    ProviderDisplayName = table.Column<string>(nullable: true),
-                    UserId = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -196,14 +201,65 @@ namespace GigMatcher.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
+                    table.ForeignKey(
+                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Instruments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    InstrumentType = table.Column<int>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
+                    DateCreated = table.Column<DateTime>(nullable: false),
+                    TypeId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Instruments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Instruments_InstrumentTypes_TypeId",
+                        column: x => x.TypeId,
+                        principalTable: "InstrumentTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Applications",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    OpeningId = table.Column<int>(nullable: false),
+                    MusicianId = table.Column<int>(nullable: false),
+                    ApplicationStatusId = table.Column<int>(nullable: false),
+                    PositionId = table.Column<int>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Applications", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Applications_ApplicationStatus_ApplicationStatusId",
+                        column: x => x.ApplicationStatusId,
+                        principalTable: "ApplicationStatus",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Musicians",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    UserId = table.Column<string>(nullable: true),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(nullable: false),
                     FirstName = table.Column<string>(nullable: false),
                     LastName = table.Column<string>(nullable: false),
                     YearsPlaying = table.Column<int>(nullable: false),
@@ -219,14 +275,15 @@ namespace GigMatcher.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
+                name: "ApplicationUser",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
-                    UserName = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
-                    Email = table.Column<string>(maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(maxLength: 256, nullable: true),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    UserName = table.Column<string>(nullable: true),
+                    NormalizedUserName = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: true),
+                    NormalizedEmail = table.Column<string>(nullable: true),
                     EmailConfirmed = table.Column<bool>(nullable: false),
                     PasswordHash = table.Column<string>(nullable: true),
                     SecurityStamp = table.Column<string>(nullable: true),
@@ -237,13 +294,13 @@ namespace GigMatcher.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
-                    MusicianId = table.Column<Guid>(nullable: false)
+                    MusicianId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.PrimaryKey("PK_ApplicationUser", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetUsers_Musicians_MusicianId",
+                        name: "FK_ApplicationUser_Musicians_MusicianId",
                         column: x => x.MusicianId,
                         principalTable: "Musicians",
                         principalColumn: "Id",
@@ -254,9 +311,10 @@ namespace GigMatcher.Migrations
                 name: "Gigs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    OwnerId = table.Column<Guid>(nullable: false),
-                    GigStatusId = table.Column<Guid>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    OwnerId = table.Column<int>(nullable: false),
+                    GigStatusId = table.Column<int>(nullable: false),
                     NumberOfPositions = table.Column<int>(nullable: false),
                     TotalPay = table.Column<decimal>(nullable: false),
                     Location = table.Column<string>(nullable: false),
@@ -286,8 +344,8 @@ namespace GigMatcher.Migrations
                 name: "MusicianInstruments",
                 columns: table => new
                 {
-                    MusicianId = table.Column<Guid>(nullable: false),
-                    InstrumentId = table.Column<Guid>(nullable: false)
+                    MusicianId = table.Column<int>(nullable: false),
+                    InstrumentId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -310,10 +368,11 @@ namespace GigMatcher.Migrations
                 name: "Position",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    PositionStatusId = table.Column<Guid>(nullable: false),
-                    GigId = table.Column<Guid>(nullable: false),
-                    MusicianId = table.Column<Guid>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    PositionStatusId = table.Column<int>(nullable: false),
+                    GigId = table.Column<int>(nullable: false),
+                    MusicianId = table.Column<int>(nullable: false),
                     Pay = table.Column<decimal>(nullable: false),
                     Description = table.Column<string>(nullable: false)
                 },
@@ -331,7 +390,7 @@ namespace GigMatcher.Migrations
                         column: x => x.MusicianId,
                         principalTable: "Musicians",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.NoAction);
                     table.ForeignKey(
                         name: "FK_Position_PositionStatus_PositionStatusId",
                         column: x => x.PositionStatusId,
@@ -344,8 +403,8 @@ namespace GigMatcher.Migrations
                 name: "PositionInstruments",
                 columns: table => new
                 {
-                    PositionId = table.Column<Guid>(nullable: false),
-                    InstrumentId = table.Column<Guid>(nullable: false)
+                    PositionId = table.Column<int>(nullable: false),
+                    InstrumentId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -380,6 +439,11 @@ namespace GigMatcher.Migrations
                 column: "PositionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ApplicationUser_MusicianId",
+                table: "ApplicationUser",
+                column: "MusicianId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
                 column: "RoleId");
@@ -405,11 +469,6 @@ namespace GigMatcher.Migrations
                 name: "IX_AspNetUserRoles_RoleId",
                 table: "AspNetUserRoles",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUsers_MusicianId",
-                table: "AspNetUsers",
-                column: "MusicianId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -485,51 +544,19 @@ namespace GigMatcher.Migrations
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                table: "AspNetUserRoles",
-                column: "UserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserClaims_AspNetUsers_UserId",
-                table: "AspNetUserClaims",
-                column: "UserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserLogins_AspNetUsers_UserId",
-                table: "AspNetUserLogins",
-                column: "UserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_AspNetUserTokens_AspNetUsers_UserId",
-                table: "AspNetUserTokens",
-                column: "UserId",
-                principalTable: "AspNetUsers",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Musicians_AspNetUsers_UserId",
+                name: "FK_Musicians_ApplicationUser_UserId",
                 table: "Musicians",
                 column: "UserId",
-                principalTable: "AspNetUsers",
+                principalTable: "ApplicationUser",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Cascade);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_AspNetUsers_Musicians_MusicianId",
-                table: "AspNetUsers");
+                name: "FK_ApplicationUser_Musicians_MusicianId",
+                table: "ApplicationUser");
 
             migrationBuilder.DropTable(
                 name: "Applications");
@@ -562,6 +589,9 @@ namespace GigMatcher.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "Instruments");
 
             migrationBuilder.DropTable(
@@ -583,7 +613,7 @@ namespace GigMatcher.Migrations
                 name: "Musicians");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "ApplicationUser");
         }
     }
 }

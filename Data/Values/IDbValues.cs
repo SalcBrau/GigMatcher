@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Data.Values
 {
-    interface IDbValues
+    public interface IDbValues
     {
         ApplicationStatusValues ApplicationStatus { get;  }
 

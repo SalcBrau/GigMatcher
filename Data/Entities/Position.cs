@@ -23,7 +23,7 @@ namespace GigMatcher.Data.Entities
         public int GigId { get; set; }
 
         [ForeignKey("Musician")]
-        public int MusicianId { get; set; }
+        public int? MusicianId { get; set; }
 
         [Required]
         public decimal Pay { get; set; }

@@ -15,7 +15,7 @@ namespace GigMatcher.Data.Entities
 
         [Required]
         [ForeignKey("InstrumentType")]
-        public int InstrumentType { get; set; }
+        public int InstrumentTypeId { get; set; }
 
         [Required]
         public String Name { get; set; }
@@ -23,7 +23,7 @@ namespace GigMatcher.Data.Entities
         [Required]
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
-        public virtual InstrumentType Type { get; set; }
+        public virtual InstrumentType InstrumentType { get; set; }
         public virtual ICollection<MusicianInstrument> MusicianInstruments { get; set; }
         public virtual ICollection<PositionInstrument> PositionInstruments { get; set; }
     }

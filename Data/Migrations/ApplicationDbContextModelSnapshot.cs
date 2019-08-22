@@ -19,6 +19,31 @@ namespace Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("Data.Entities.ApplicationRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles");
+                });
+
             modelBuilder.Entity("GigMatcher.Data.Entities.Application", b =>
                 {
                     b.Property<int>("Id")
@@ -29,9 +54,7 @@ namespace Data.Migrations
 
                     b.Property<int>("MusicianId");
 
-                    b.Property<int>("OpeningId");
-
-                    b.Property<int?>("PositionId");
+                    b.Property<int>("PositionId");
 
                     b.HasKey("Id");
 
@@ -41,7 +64,7 @@ namespace Data.Migrations
 
                     b.HasIndex("PositionId");
 
-                    b.ToTable("Applications");
+                    b.ToTable("Applications","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.ApplicationStatus", b =>
@@ -57,7 +80,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ApplicationStatus");
+                    b.ToTable("ApplicationStatus","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.ApplicationUser", b =>
@@ -68,9 +91,16 @@ namespace Data.Migrations
 
                     b.Property<int>("AccessFailedCount");
 
-                    b.Property<string>("ConcurrencyStamp");
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken();
 
-                    b.Property<string>("Email");
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256);
 
                     b.Property<bool>("EmailConfirmed");
 
@@ -80,9 +110,11 @@ namespace Data.Migrations
 
                     b.Property<int>("MusicianId");
 
-                    b.Property<string>("NormalizedEmail");
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256);
 
-                    b.Property<string>("NormalizedUserName");
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256);
 
                     b.Property<string>("PasswordHash");
 
@@ -94,13 +126,26 @@ namespace Data.Migrations
 
                     b.Property<bool>("TwoFactorEnabled");
 
-                    b.Property<string>("UserName");
+                    b.Property<int?>("UserId");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256);
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MusicianId");
+                    b.HasIndex("NormalizedEmail")
+                        .HasName("EmailIndex");
 
-                    b.ToTable("ApplicationUser");
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
+
+                    b.ToTable("AspNetUser","AspIdentity");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Gig", b =>
@@ -135,8 +180,7 @@ namespace Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-
-                    b.ToTable("Gigs");
+                    b.ToTable("Gigs","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.GigStatus", b =>
@@ -145,14 +189,16 @@ namespace Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("DateCreated");
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(new DateTime(2019, 8, 22, 18, 38, 38, 965, DateTimeKind.Utc).AddTicks(2710));
 
                     b.Property<string>("Name")
                         .IsRequired();
 
                     b.HasKey("Id");
 
-                    b.ToTable("GigStatus");
+                    b.ToTable("GigStatus","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Instrument", b =>
@@ -163,18 +209,16 @@ namespace Data.Migrations
 
                     b.Property<DateTime>("DateCreated");
 
-                    b.Property<int>("InstrumentType");
+                    b.Property<int>("InstrumentTypeId");
 
                     b.Property<string>("Name")
                         .IsRequired();
 
-                    b.Property<int?>("TypeId");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TypeId");
+                    b.HasIndex("InstrumentTypeId");
 
-                    b.ToTable("Instruments");
+                    b.ToTable("Instruments","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.InstrumentType", b =>
@@ -190,7 +234,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("InstrumentTypes");
+                    b.ToTable("InstrumentTypes","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Musician", b =>
@@ -199,7 +243,9 @@ namespace Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<DateTime>("DateCreated");
+                    b.Property<DateTime>("DateCreated")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(new DateTime(2019, 8, 22, 18, 38, 38, 969, DateTimeKind.Utc).AddTicks(2942));
 
                     b.Property<DateTime>("DateOfBirth");
 
@@ -211,9 +257,13 @@ namespace Data.Migrations
 
                     b.Property<string>("Location");
 
+                    b.Property<int?>("MusicianId");
+
                     b.Property<int>("Rating");
 
                     b.Property<int>("UserId");
+
+                    b.Property<int>("YearPlaying");
 
                     b.Property<int>("YearsPlaying");
 
@@ -223,7 +273,7 @@ namespace Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Musicians");
+                    b.ToTable("Musicians","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.MusicianInstrument", b =>
@@ -236,7 +286,7 @@ namespace Data.Migrations
 
                     b.HasIndex("InstrumentId");
 
-                    b.ToTable("MusicianInstruments");
+                    b.ToTable("MusicianInstruments","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Position", b =>
@@ -250,7 +300,7 @@ namespace Data.Migrations
 
                     b.Property<int>("GigId");
 
-                    b.Property<int>("MusicianId");
+                    b.Property<int?>("MusicianId");
 
                     b.Property<decimal>("Pay");
 
@@ -264,7 +314,7 @@ namespace Data.Migrations
 
                     b.HasIndex("PositionStatusId");
 
-                    b.ToTable("Position");
+                    b.ToTable("Positions","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.PositionInstrument", b =>
@@ -277,7 +327,7 @@ namespace Data.Migrations
 
                     b.HasIndex("InstrumentId");
 
-                    b.ToTable("PositionInstruments");
+                    b.ToTable("PositionInstruments","dbo");
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.PositionStatus", b =>
@@ -293,34 +343,10 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PositionStatus");
+                    b.ToTable("PositionStatus","dbo");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -330,8 +356,7 @@ namespace Data.Migrations
 
                     b.Property<string>("ClaimValue");
 
-                    b.Property<string>("RoleId")
-                        .IsRequired();
+                    b.Property<int>("RoleId");
 
                     b.HasKey("Id");
 
@@ -340,58 +365,7 @@ namespace Data.Migrations
                     b.ToTable("AspNetRoleClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AccessFailedCount");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken();
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256);
-
-                    b.Property<bool>("EmailConfirmed");
-
-                    b.Property<bool>("LockoutEnabled");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256);
-
-                    b.Property<string>("PasswordHash");
-
-                    b.Property<string>("PhoneNumber");
-
-                    b.Property<bool>("PhoneNumberConfirmed");
-
-                    b.Property<string>("SecurityStamp");
-
-                    b.Property<bool>("TwoFactorEnabled");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -401,8 +375,7 @@ namespace Data.Migrations
 
                     b.Property<string>("ClaimValue");
 
-                    b.Property<string>("UserId")
-                        .IsRequired();
+                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
@@ -411,7 +384,7 @@ namespace Data.Migrations
                     b.ToTable("AspNetUserClaims");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.Property<string>("LoginProvider");
 
@@ -419,8 +392,7 @@ namespace Data.Migrations
 
                     b.Property<string>("ProviderDisplayName");
 
-                    b.Property<string>("UserId")
-                        .IsRequired();
+                    b.Property<int>("UserId");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -429,11 +401,11 @@ namespace Data.Migrations
                     b.ToTable("AspNetUserLogins");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<int>("UserId");
 
-                    b.Property<string>("RoleId");
+                    b.Property<int>("RoleId");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -442,9 +414,9 @@ namespace Data.Migrations
                     b.ToTable("AspNetUserRoles");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<int>("UserId");
 
                     b.Property<string>("LoginProvider");
 
@@ -462,23 +434,28 @@ namespace Data.Migrations
                     b.HasOne("GigMatcher.Data.Entities.ApplicationStatus", "ApplicationStatus")
                         .WithMany("Applications")
                         .HasForeignKey("ApplicationStatusId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_Application_ApplicationStatus_ApplicationStatusId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GigMatcher.Data.Entities.Musician", "Musician")
                         .WithMany("Applications")
                         .HasForeignKey("MusicianId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_Application_Musicians_MusicianId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GigMatcher.Data.Entities.Position", "Position")
                         .WithMany("Applications")
-                        .HasForeignKey("PositionId");
+                        .HasForeignKey("PositionId")
+                        .HasConstraintName("FK_Application_Positions_PositionId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.ApplicationUser", b =>
                 {
                     b.HasOne("GigMatcher.Data.Entities.Musician", "Musician")
-                        .WithMany()
-                        .HasForeignKey("MusicianId")
+                        .WithOne("User")
+                        .HasForeignKey("GigMatcher.Data.Entities.ApplicationUser", "UserId")
+                        .HasConstraintName("FK_Musician_ApplicationUsers_UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
@@ -487,27 +464,22 @@ namespace Data.Migrations
                     b.HasOne("GigMatcher.Data.Entities.GigStatus", "GigStatus")
                         .WithMany("Gigs")
                         .HasForeignKey("GigStatusId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_Gig_GigStatus_GigStatusId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GigMatcher.Data.Entities.Musician", "Owner")
                         .WithMany("Gigs")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.Instrument", b =>
                 {
-                    b.HasOne("GigMatcher.Data.Entities.InstrumentType", "Type")
+                    b.HasOne("GigMatcher.Data.Entities.InstrumentType", "InstrumentType")
                         .WithMany("Instruments")
-                        .HasForeignKey("TypeId");
-                });
-
-            modelBuilder.Entity("GigMatcher.Data.Entities.Musician", b =>
-                {
-                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("InstrumentTypeId")
+                        .HasConstraintName("FK_Instrument_InstrumentTypes_InstrumentTypeId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("GigMatcher.Data.Entities.MusicianInstrument", b =>
@@ -533,7 +505,8 @@ namespace Data.Migrations
                     b.HasOne("GigMatcher.Data.Entities.Musician", "Musician")
                         .WithMany("Positions")
                         .HasForeignKey("MusicianId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasConstraintName("FK_Position_Musicians_MusicianId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("GigMatcher.Data.Entities.PositionStatus", "PositionStatus")
                         .WithMany("Positions")
@@ -554,46 +527,46 @@ namespace Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("Data.Entities.ApplicationRole")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
+                    b.HasOne("Data.Entities.ApplicationRole")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
+                    b.HasOne("GigMatcher.Data.Entities.ApplicationUser")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);

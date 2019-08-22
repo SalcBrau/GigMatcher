@@ -15,6 +15,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Data.Values;
 using GigMatcher.Extensions;
+using Data.Entities;
+using GigMatcher.Data.Entities;
 
 namespace GigMatcher
 {
@@ -40,10 +42,15 @@ namespace GigMatcher
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddIdentity<IdentityUser, IdentityRole>()
+
+            services.AddIdentity<ApplicationUser, ApplicationRole>()
+                .AddRoles<ApplicationRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddScoped<UserManager<ApplicationUser>>();
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings
@@ -111,8 +118,8 @@ namespace GigMatcher
         private async Task CreateRoles(IServiceProvider serviceProvider)
         {
             // initializing custom roles
-            var RoleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var UserManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+            var UserManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
             string[] roleNames = { "Admin", "User", "Manager" };
             IdentityResult roleResult;
 
@@ -121,7 +128,7 @@ namespace GigMatcher
                 var roleExist = await RoleManager.RoleExistsAsync(roleName);
                 if (!roleExist)
                 {
-                    roleResult = await RoleManager.CreateAsync(new IdentityRole(roleName));
+                    roleResult = await RoleManager.CreateAsync(new ApplicationRole(roleName));
                 }
             }
  

@@ -7,10 +7,11 @@ using GigMatcher.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Data.Values;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Data.Entities;
 
 namespace GigMatcher.Data
 {
-    public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole<int>, int>
+    public partial class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -88,7 +89,7 @@ namespace GigMatcher.Data
 
                 entity.HasOne(au => au.Musician)
                     .WithOne(m => m.User)
-                    .HasForeignKey("MusicianId")
+                    .HasForeignKey("Musician", "MusicianId")
                     .HasConstraintName("FK_ApplicationUser_Musicians_MusicianId")
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -118,7 +119,8 @@ namespace GigMatcher.Data
 
                 entity.Property<int>("NumberOfPositions");
 
-                entity.Property<int>("OwnerId");
+                entity.Property<int>("OwnerId")
+                    .IsRequired();
 
                 entity.Property<decimal>("TotalPay");
 
@@ -127,7 +129,13 @@ namespace GigMatcher.Data
                 entity.HasIndex("GigStatusId");
 
                 entity.HasIndex("OwnerId");
-
+                /*
+                entity.HasOne(g => g.Owner)
+                    .WithMany(o => o.Gigs)
+                    .HasForeignKey("Musician", "OwnerId")
+                    .HasConstraintName("FK_Gig_Musicians_OwnerId")
+                    .OnDelete(DeleteBehavior.Cascade);
+*/
                 entity.HasMany(g => g.Positions)
                     .WithOne(p => p.Gig);
 
@@ -156,10 +164,42 @@ namespace GigMatcher.Data
             modelBuilder.Entity<Instrument>(entity =>
             {
                 entity.ToTable(name: "Instruments", schema: "dbo");
+
+                entity.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                entity.Property<DateTime>("DateCreated");
+
+                entity.Property<int>("InstrumentTypeId");
+
+                entity.Property<string>("Name")
+                    .IsRequired();
+
+                entity.HasKey("Id");
+
+                entity.HasIndex("InstrumentTypeId");
+
+                entity.HasOne(i => i.InstrumentType)
+                    .WithMany(it => it.Instruments)
+                    .HasForeignKey("InstrumentTypeId")
+                    .HasConstraintName("FK_Instrument_InstrumentTypes_InstrumentTypeId")
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<InstrumentType>(entity =>
             {
+                entity.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                entity.Property<DateTime>("DateCreated");
+
+                entity.Property<string>("Name")
+                    .IsRequired();
+
+                entity.HasKey("Id");
+
                 entity.ToTable(name: "InstrumentTypes", schema: "dbo");
             });
 
@@ -168,6 +208,7 @@ namespace GigMatcher.Data
                 entity.ToTable(name: "Musicians", schema: "dbo");
 
                 entity.Property<int>("Id")
+                    .IsRequired()
                     .ValueGeneratedOnAdd()
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -200,17 +241,21 @@ namespace GigMatcher.Data
 
                 entity.HasOne(m => m.User)
                     .WithOne(au => au.Musician)
-                    .HasForeignKey("UserId")
-                    .HasConstraintName("FK_Musician_ApplicationUsers_UserId");
+                    .HasForeignKey("ApplicationUser", "UserId")
+                    .HasConstraintName("FK_Musician_ApplicationUsers_UserId")
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasMany(m => m.Gigs)
-                .WithOne(g => g.Owner);
+                    .WithOne(g => g.Owner)
+                    .OnDelete(DeleteBehavior.Restrict); 
 
                 entity.HasMany(m => m.Positions)
-                    .WithOne(p => p.Musician);
+                    .WithOne(p => p.Musician)
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(m => m.Applications)
-                    .WithOne(a => a.Musician);
+                    .WithOne(a => a.Musician)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<MusicianInstrument>(entity =>
@@ -232,16 +277,54 @@ namespace GigMatcher.Data
             {
                 entity.ToTable(name: "Positions", schema: "dbo");
 
+                entity.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                entity.Property<string>("Description")
+                    .IsRequired();
+
+                entity.Property<int>("GigId");
+
+                entity.Property<int?>("MusicianId");
+
+                entity.Property<decimal>("Pay");
+
+                entity.Property<int>("PositionStatusId");
+
+                entity.HasKey("Id");
+
+                entity.HasIndex("GigId");
+
+                entity.HasIndex("MusicianId");
+
+                entity.HasIndex("PositionStatusId");
+
                 entity.HasMany(p => p.Applications)
                     .WithOne(a => a.Position);
 
                 entity.HasOne(p => p.PositionStatus)
                     .WithMany(ps => ps.Positions);
+
+                entity.HasOne(p => p.Musician)
+                    .WithMany(m => m.Positions)
+                    .HasForeignKey("MusicianId")
+                    .HasConstraintName("FK_Position_Musicians_MusicianId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
             });
 
             modelBuilder.Entity<PositionInstrument>(entity =>
             {
                 entity.ToTable(name: "PositionInstruments", schema: "dbo");
+
+                entity.Property<int>("PositionId");
+
+                entity.Property<int>("InstrumentId");
+
+                entity.HasKey("PositionId", "InstrumentId");
+
+                entity.HasIndex("InstrumentId");
 
                 entity.HasKey(pi => new { pi.PositionId, pi.InstrumentId });
 
@@ -257,52 +340,19 @@ namespace GigMatcher.Data
             modelBuilder.Entity<PositionStatus>(entity =>
             {
                 entity.ToTable(name: "PositionStatus", schema: "dbo");
-            });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-            {
-                entity.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
-                    .WithMany()
-                    .HasForeignKey("RoleId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+                entity.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-            {
-                entity.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+                entity.Property<DateTime>("DateCreated");
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-            {
-                entity.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+                entity.Property<string>("Name")
+                    .IsRequired();
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-            {
-                entity.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
-                    .WithMany()
-                    .HasForeignKey("RoleId")
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
+                entity.HasKey("Id");
             });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-            {
-                entity.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+  
         }
 
         public DbSet<Application> Applications { get; set; }
